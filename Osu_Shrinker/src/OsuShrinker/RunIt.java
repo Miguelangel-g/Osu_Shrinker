@@ -56,8 +56,6 @@ public class RunIt{
 		List<String> files = Files(songs);
 		Osu(files);
 		List<String> pareF = pare(files,alertFiles);
-		//
-		
 		int respon = JOptionPane.showConfirmDialog(null, "We found for: \n"+
 			("-------------------- \n")
 			+
@@ -86,7 +84,6 @@ public class RunIt{
 	};
 	Thread = new Thread(runnable);
         Thread.start();
-	
     }
     
 
@@ -109,7 +106,7 @@ public class RunIt{
 		    route.add(file.getAbsolutePath());
 		}
 	return route;
-    }//Folder
+    }
     
     public static List<String> Files(List<String> songs){
 	List<String> files = new ArrayList<>();
@@ -139,8 +136,7 @@ public class RunIt{
    }
    
    public static void delete(List<String> pareF, List<String> files,List<String> songs){
-        files.removeAll(pareF);
-	List<String> del = new ArrayList<>(files);
+	List<String> del = new ArrayList<>(pareF);
 	aux("Deleting files.");	
 	try {
 	   for (int i=0;i<del.size();i++) {
@@ -185,9 +181,13 @@ public class RunIt{
 	  dis = new DataInputStream(bis);
 	  while (dis.available() != 0) {
 	      String Line=dis.readLine();
-	    if(Line.contains("Mode:")){
-		mode=Line.substring(Line.indexOf(":")+1, Line.length());
-	    }
+            if(Line.contains("v1")||Line.contains("v2")||Line.contains("v3")||Line.contains("v4")||Line.contains("v5")) 
+                mode="0";
+            else{ 
+                if(Line.contains("Mode:")){
+                    mode=Line.substring(Line.indexOf(":")+1, Line.length());
+                }
+            }
 	    if(Line.contains("[Metadata]")){
 		break;
 	    }
@@ -206,19 +206,14 @@ public class RunIt{
    }
    
    public static List<String> pare(List<String> files,List<String> alertFiles){
-       aux("Almost done, wait.");
-       List<String> forDel = new ArrayList<>();
-       for(int i=0;i<files.size();i++){
-	    for(int j=0;j<alertFiles.size();j++){
-		if(files.get(i).contains(alertFiles.get(j))){
-			forDel.add(files.get(i));
-		}
-	    }
-       }
+        aux("Almost done, wait.");
+        List<String> forSave = new ArrayList<>();
+        files.removeAll(alertFiles);
+        List<String> del = new ArrayList<>(files);
 	Set<String> hs = new HashSet<>();
-	hs.addAll(forDel);
-	forDel.clear();
-	forDel.addAll(hs);
+	hs.addAll(del);
+	forSave.clear();
+	forSave.addAll(hs);
 	List<String> forDell = new ArrayList<>(hs);
        return forDell;
    }
@@ -226,6 +221,7 @@ public class RunIt{
    public static void read(String osuRoute){
        do{
         alertFiles.add(osuRoute);
+        String route = osuRoute.substring(0,osuRoute.indexOf("\\",osuRoute.indexOf("Songs\\")+7));
 	File file = new File(osuRoute);
 	FileInputStream fis = null;
 	BufferedInputStream bis = null;
@@ -236,22 +232,12 @@ public class RunIt{
 	  dis = new DataInputStream(bis);
 	    while (dis.available() != 0) {
 	      String Line=dis.readLine();
-		if(Line.startsWith("AudioFilename:")){
-
-		    alertFiles.add(Line.substring(Line.indexOf(":")+2, Line.length()));
-		}
-		if(find==true){
-		    if(Line.contains(".jpg") || Line.contains(".png") || Line.contains(".jpeg")){
-			alertFiles.add(Line.substring(Line.indexOf("\"")+1,Line.lastIndexOf("\"")));
-		    }
-		    find=false;
-		}
-		if(Line.contains("Background and Video events") || Line.contains("Video,")){
-		    find=true;
-		}
-		if(Line.contains("[TimingPoints]")) {
+		if(Line.startsWith("AudioFilename:"))
+		    alertFiles.add(route+File.separator+Line.substring(Line.indexOf(":")+2, Line.length()));             
+                if(Line.startsWith("0,0,"))
+		    alertFiles.add(Line.substring(Line.indexOf("\"")+1, Line.lastIndexOf("\"")));
+		if(Line.contains("[TimingPoints]"))
 		    break;
-		}
 	    }
 	    fis.close();
 	    bis.close();
@@ -267,33 +253,22 @@ public class RunIt{
    
     public static List<String> readOsu(String osuRoute){
 	String mod = mode(osuRoute);
-	if(mod.equals("0")){
+	if(mod.equals("0"))
 	    Window.N_STD.setText((Integer.parseInt(Window.N_STD.getText())+1)+"");
-	}
-	if(mod.equals("1")){
+	if(mod.equals("1"))
 	    Window.N_Taiko.setText((Integer.parseInt(Window.N_Taiko.getText())+1)+"");
-	}
-	if(mod.equals("2")){
-	    Window.N_CTB.setText((Integer.parseInt(Window.N_CTB.getText())+1)+"");
-	}
-	if(mod.equals("3")){
-	    Window.N_Mania.setText((Integer.parseInt(Window.N_Mania.getText())+1)+"");
-	}
-	
-	if(mod.equals("0") && Astd){
+	if(mod.equals("2"))
+	    Window.N_CTB.setText((Integer.parseInt(Window.N_CTB.getText())+1)+"");	
+	if(mod.equals("3"))
+	    Window.N_Mania.setText((Integer.parseInt(Window.N_Mania.getText())+1)+"");		
+	if(mod.equals("0") && Astd)
+	    read(osuRoute);	
+	if(mod.equals("1") && Ataiko)
 	    read(osuRoute);
-	}
-	if(mod.equals("1") && Ataiko){
+	if(mod.equals("2") && Afruts)
 	    read(osuRoute);
-	}
-	if(mod.equals("2") && Afruts){
-	    read(osuRoute);
-	}
-	if(mod.equals("3") && Amania){
-	    read(osuRoute);
-	}
-	
-	
+	if(mod.equals("3") && Amania)
+	    read(osuRoute);	
 	return alertFiles;
       }
     
@@ -303,5 +278,6 @@ public class RunIt{
 	int len = Window.T_Area.getDocument().getLength();
 	Window.T_Area.setCaretPosition(len);
     }
+
 
 }
