@@ -183,7 +183,7 @@ public class RunIt{
 	      String Line=dis.readLine();
             if(Line.contains("v1")||Line.contains("v2")||Line.contains("v3")||Line.contains("v4")||Line.contains("v5")) 
                 mode="0";
-            else{ 
+            else{  
                 if(Line.contains("Mode:")){
                     mode=Line.substring(Line.indexOf(":")+1, Line.length());
                 }
